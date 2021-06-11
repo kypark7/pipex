@@ -6,8 +6,6 @@
 #include "libft/libft.h"
 #include "pipex.h"
 
-extern char **environ;
-
 int		redirect_in(const char *file)
 {
 	int fd;
@@ -58,36 +56,39 @@ static void	cmd_init(const char *cmd, t_cmd *strt)
 	strt->argv = (char *const *)chunk;
 }
 
-static void	run_cmd(const char *cmd, t_cmd *cmd_arg)
+static void	run_cmd(const char *cmd)
 {
 	int i;
+	t_cmd	t_cmd;
+
 
 	i = 0;
-	cmd_init(cmd, cmd_arg);
+	cmd_init(cmd, &t_cmd);
 	while(i < 5)
-		execve(cmd_arg->cmd[i++], cmd_arg->argv, environ);
-	perror(cmd_arg->argv[0]);
+		execve(t_cmd.cmd[i++], t_cmd.argv, NULL);
+	perror(t_cmd.argv[0]);
 }
 
 int		main(int argc, char *argv[])
 {
 	int		pipefd[2];
 	pid_t	pid;
-	t_cmd	cmd;
 
+	if (argc != 5)
+		return (0);
 	pipe(pipefd);
 	pid = fork();
 	if (pid > 0)
-{
+	{
 		redirect_out(FILE_2);
 		connect_pipe(pipefd, STDIN_FILENO);
-		run_cmd(CMD_2, &cmd);
+		run_cmd(CMD_2);
 	}
 	else if (pid == CHILD)
 	{
 		redirect_in(FILE_1);
 		connect_pipe(pipefd, STDOUT_FILENO);
-		run_cmd(CMD_1, &cmd);
+		run_cmd(CMD_1);
 	}
 	return (0);
 }
