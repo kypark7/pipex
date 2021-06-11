@@ -4,7 +4,7 @@ CC = gcc
 
 CFLAGS = -Wall -Werror -Wextra
 
-SRC = ./main.c
+SRC = ./pipex.c
 
 OSRC = $(SRC:.c=.o)
 
