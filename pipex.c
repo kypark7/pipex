@@ -1,18 +1,24 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdlib.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   pipex.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kypark <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/06/11 21:26:57 by kypark            #+#    #+#             */
+/*   Updated: 2021/06/11 21:26:59 by kypark           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "libft/libft.h"
 #include "pipex.h"
 
-void	redirect_in(const char *file)
+void		redirect_in(const char *file)
 {
-	int fd;
+	int		fd;
 
 	fd = open(file, O_RDONLY);
 	if (fd < 0)
-	{	
+	{
 		perror(file);
 		exit(1);
 	}
@@ -20,11 +26,11 @@ void	redirect_in(const char *file)
 	close(fd);
 }
 
-void	redirect_out(const char *file)
+void		redirect_out(const char *file)
 {
-	int fd;
+	int		fd;
 
-	fd = open(file, O_RDWR | O_CREAT , 0644);
+	fd = open(file, O_RDWR | O_CREAT, 0644);
 	if (fd < 0)
 	{
 		perror(file);
@@ -34,7 +40,7 @@ void	redirect_out(const char *file)
 	close(fd);
 }
 
-static void connect_pipe(int pipefd[2], int io)
+static void	connect_pipe(int pipefd[2], int io)
 {
 	dup2(pipefd[io], io);
 	close(pipefd[0]);
@@ -56,18 +62,17 @@ static void	cmd_init(const char *cmd, t_cmd *strt)
 
 static void	run_cmd(const char *cmd)
 {
-	int i;
-	t_cmd	_cmd;
-
+	int		i;
+	t_cmd	cmd_;
 
 	i = 0;
-	cmd_init(cmd, &_cmd);
-	while(i < 5)
-		execve(_cmd.cmd[i++], _cmd.argv, NULL);
-	perror(_cmd.argv[0]);
+	cmd_init(cmd, &cmd_);
+	while (i < 5)
+		execve(cmd_.cmd[i++], cmd_.argv, NULL);
+	perror(cmd_.argv[0]);
 }
 
-int		main(int argc, char *argv[])
+int			main(int argc, char *argv[])
 {
 	int		pipefd[2];
 	int		status;
@@ -82,15 +87,15 @@ int		main(int argc, char *argv[])
 		waitpid(pid, &status, 0);
 		if (WIFEXITED(status) == 0)
 			exit(1);
-		redirect_out(FILE_2);
+		redirect_out(argv[4]);
 		connect_pipe(pipefd, STDIN_FILENO);
-		run_cmd(CMD_2);
+		run_cmd(argv[3]);
 	}
 	else if (pid == CHILD)
 	{
-		redirect_in(FILE_1);
+		redirect_in(argv[1]);
 		connect_pipe(pipefd, STDOUT_FILENO);
-		run_cmd(CMD_1);
+		run_cmd(argv[2]);
 	}
 	return (0);
 }
