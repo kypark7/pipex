@@ -6,7 +6,7 @@
 #include "libft/libft.h"
 #include "pipex.h"
 
-int		redirect_in(const char *file)
+void	redirect_in(const char *file)
 {
 	int fd;
 
@@ -14,26 +14,24 @@ int		redirect_in(const char *file)
 	if (fd < 0)
 	{	
 		perror(file);
-		return (-1);
+		exit(1);
 	}
 	dup2(fd, STDIN_FILENO);
 	close(fd);
-	return (0);
 }
 
-int		redirect_out(const char *file)
+void	redirect_out(const char *file)
 {
 	int fd;
 
-	fd = open(file, O_RDWR | O_CREAT, 0644);
+	fd = open(file, O_RDWR | O_CREAT , 0644);
 	if (fd < 0)
 	{
 		perror(file);
-		return(-1);
+		exit(1);
 	}
 	dup2(fd, STDOUT_FILENO);
 	close(fd);
-	return (0);
 }
 
 static void connect_pipe(int pipefd[2], int io)
@@ -59,19 +57,20 @@ static void	cmd_init(const char *cmd, t_cmd *strt)
 static void	run_cmd(const char *cmd)
 {
 	int i;
-	t_cmd	t_cmd;
+	t_cmd	_cmd;
 
 
 	i = 0;
-	cmd_init(cmd, &t_cmd);
+	cmd_init(cmd, &_cmd);
 	while(i < 5)
-		execve(t_cmd.cmd[i++], t_cmd.argv, NULL);
-	perror(t_cmd.argv[0]);
+		execve(_cmd.cmd[i++], _cmd.argv, NULL);
+	perror(_cmd.argv[0]);
 }
 
 int		main(int argc, char *argv[])
 {
 	int		pipefd[2];
+	int		status;
 	pid_t	pid;
 
 	if (argc != 5)
@@ -80,6 +79,9 @@ int		main(int argc, char *argv[])
 	pid = fork();
 	if (pid > 0)
 	{
+		waitpid(pid, &status, 0);
+		if (WIFEXITED(status) == 0)
+			exit(1);
 		redirect_out(FILE_2);
 		connect_pipe(pipefd, STDIN_FILENO);
 		run_cmd(CMD_2);
