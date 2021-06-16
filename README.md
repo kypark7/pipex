@@ -59,8 +59,8 @@ fork 함수 호출 이후 코드부터 각자의 메모리를 사용하여 실�
 |---|---|
 |WCONTINUED|중단 되었다가 재개된 자식 프로세스의 상태를 받음
 |WNOHANG|기다리는 PID가 종료되지 않아서 즉시 종료 상태를 회수 할 수 없는 상황에서 호출자는 차단되지 않고 반환값으로 0을 받음|
-|WUNTRACED|중단됨 자식 프로세스
- WIFEXITED(status) 자식이 정상적으로 종료되었다면 non-zero
+|WUNTRACED|중단됨 자식 프로세스|
+
  
 ##### int dup2(int old_fd1, int new_fd2)
 newfd 파일 descripter가 이미 open된 파일이면 close하고 oldfd를 newfd로 복사
